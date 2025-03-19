@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Dosen;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class DosenController extends Controller
 {
@@ -32,9 +33,10 @@ class DosenController extends Controller
         $validatedData = validator($request->all(),[
             'nik' => 'required|string|max:7|unique:dosen,nik',
             'name' => 'required|string|max:100',
-            'email' => 'required|string|email|max:50|unique:dosen,email',
             'birth_date' => 'required|date',
+            'email' => 'required|string|email|max:50|unique:dosen,email',
         ])->validate();
+
         $dosen = new Dosen($validatedData);
         $dosen->save();
         return redirect(route('dosenList'));
@@ -53,7 +55,7 @@ class DosenController extends Controller
      */
     public function edit(Dosen $dosen)
     {
-        //
+        return view('dosen.edit')->with('dosen', $dosen);
     }
 
     /**
@@ -61,7 +63,20 @@ class DosenController extends Controller
      */
     public function update(Request $request, Dosen $dosen)
     {
-        //
+        {
+            $validatedData = validator($request->all(),[
+                'nik'=> 'required','string'.'max:7',Rule::unique('dosen','nik')->ignore($dosen->nik, 'nik'),
+                'name'=> 'required|string|max:100',
+                'email'=> 'required','string','email','max:50',Rule::unique('dosen','email')->ignore($dosen->email, 'email'),
+                'birth_date'=> 'required|date',
+            ])->validate();
+
+            $dosen['name']=$validatedData['name'];
+            $dosen['email']=$validatedData['email'];
+            $dosen['birth_date']=$validatedData['birth_date'];
+            $dosen->save();
+            return redirect(route('dosenList'))->with('success', 'Dosen Berhasil Diubah');
+        }
     }
 
     /**
@@ -69,6 +84,7 @@ class DosenController extends Controller
      */
     public function destroy(Dosen $dosen)
     {
-        //
+        $dosen->delete();
+        return redirect(route('dosenList'))->with('success', 'Dosen berhasil dihapus');
     }
 }
