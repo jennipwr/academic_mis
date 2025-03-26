@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
+use Exception;
 
 class RegisteredUserController extends Controller
 {
@@ -29,24 +30,34 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            # 'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-            'nip' => ['required', 'string', 'lowercase', 'max:7', 'unique:karyawan'],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-        ]);
+        try {
+            // Validasi input
+            $request->validate([
+                'name' => ['required', 'string', 'max:255'],
+//                'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email'],
+                'nip' => ['required', 'string', 'lowercase', 'max:7', 'unique:karyawan,nip'],
+                'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            ]);
 
-        $user = User::create([
-            'name' => $request->name,
-            # 'email' => $request->email,
-            'nip' => $request->nip,
-            'password' => Hash::make($request->password),
-        ]);
+            // Buat user baru
+            $user = User::create([
+                'name' => $request->name,
+                'nip' => $request->nip,
+//                'email' => $request->email,
+                'role_id' => '2',
+                'password' => Hash::make($request->password),
+            ]);
 
-        event(new Registered($user));
+            // Trigger event registrasi
+            event(new Registered($user));
 
-        Auth::login($user);
+            // Login user setelah registrasi
+            Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+            return redirect(route('dashboard', absolute: false))->with('success', 'Registrasi berhasil!');
+        } catch (Exception $e) {
+            // Dump and die untuk debugging
+            return dd($e);
+        }
     }
 }
