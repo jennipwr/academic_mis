@@ -20,13 +20,14 @@
                 <div class="card-body">
 
                     <div class="row">
-                        <form method="POST" action="{{ route('mahasiswaUpdate', [$mahasiswa->nrp]) }}">
+                        <form method="POST" action="{{ route('mahasiswaUpdate', [$mahasiswa->nrp]) }}" enctype="multipart/form-data">
                             @csrf
                             @method('PUT')
                             <div class="form-group">
                                 <label for="nrp">NRP</label>
                                 <input type="text" class="form-control" name="nrp" id="nrp" placeholder="e.g. 202472001" required readonly maxlength="9" value="{{ $mahasiswa->nrp }}" />
                             </div>
+
                             <div class="form-group">
                                 <label for="name">Name</label>
                                 <input type="text" class="form-control" name="name" id="name" placeholder="e.g. John Doe" required autofocus value="{{ $mahasiswa->name }}" />
@@ -46,6 +47,10 @@
                             <div class="form-group">
                                 <label for="phone">Phone</label>
                                 <input type="text" class="form-control" name="phone" id="phone" placeholder="e.g. 081234567" required  value="{{ $mahasiswa->phone }}" />
+                            </div>
+                            <div class="form-group">
+                                <label for="phone">Profile Picture</label>
+                                <input type="file" class="form-control" name="profile_picture" id="profile_picture" accept="image/png, image/jpg, image/jpeg" />
                             </div>
                             <div class="form-group">
                                 <label for="dosenWali">Dosen Wali</label>
